@@ -10,7 +10,7 @@ const submit = function (image) {
 
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = 'http://web-capture.l11g.net/home/v2push';
+    form.action = 'https://web-capture.l11g.net/home/v2push';
     form.style.display = 'none';
     form.onsubmit = function () {
         return form.dataset.submitted = true;
