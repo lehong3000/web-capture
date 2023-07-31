@@ -1,5 +1,5 @@
 {
-	"name": "AutoCapture",
+	"name": "WebCapture",
 	"description": "Tự động capture hình ảnh gửi lên server",
 	"version": "1.1",
 	"manifest_version": 3,
@@ -9,13 +9,13 @@
 	"content_scripts": [
 		{
 			"matches": [ "https://*/*", "http://*/*" ],
-			"js": [ "jquery.min.js", "main.js" ]
+			"js": [ "jquery.min.js", "html2canvas.min.js", "main.js" ]
 		}
 	],
 	"icons": {
-		"16": "/images/vin_16.png",
-		"32": "/images/vin_32.png",
-		"48": "/images/vin_48.png",
-		"128": "/images/vin_128.png"
+		"16": "/images/16.ico",
+		"32": "/images/32.ico",
+		"48": "/images/48.ico",
+		"128": "/images/128.ico"
 	}
 }
