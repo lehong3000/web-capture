@@ -10,11 +10,8 @@ const submit = function (image) {
 
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = 'https://web-capture.l11g.net/home/v2push';
+    form.action = '/v2push';
     form.style.display = 'none';
-    form.onsubmit = function () {
-        return form.dataset.submitted = true;
-    }
 
     const iframe = document.createElement('iframe');
     iframe.name = iframeName;
@@ -25,34 +22,46 @@ const submit = function (image) {
     iframe.style.marginTop = '-1px';
     iframe.style.border = 'none';
     iframe.onload = function () {
-        if (form.dataset.submitted === true) {
+        if (!form.dataset.firstload) {
+            form.dataset.firstload = true;
+
+            form.target = iframeName;
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = 'token';
+            hiddenField.value = image;
+            form.appendChild(hiddenField);
+            form.submit();
+        } else {
             iframe.remove();
             form.remove();
+            console.log(image);
         }
     }
 
-    document.body.appendChild(iframe);
     document.body.appendChild(form);
-    form.target = iframeName;
-
-    const hiddenField = document.createElement('input');
-    hiddenField.type = 'hidden';
-    hiddenField.name = 'token';
-    hiddenField.value = image;
-    form.appendChild(hiddenField);
-    form.submit();
+    document.body.appendChild(iframe);
 }
 
-const capture = function () {
-    html2canvas(document.querySelector('body')).then(canvas => {
-        const base64image = canvas.toDataURL("image/png");
-        submit(base64image);
-        //setTimeout(capture, 60000);
-    });
+const startCapture = async function () {
+    const displayMediaOptions = {
+        video: {
+            displaySurface: "window",
+        },
+        audio: false,
+    };
+    const videoElem = document.createElement("video");
+    videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+
 }
 
 window.onkeyup = function (event) {
-    if (event.key == 'C') {
-        capture();
+    if (event.key == 'S' && !window.capturing) {
+        window.capturing = true;
+        startCapture();
+    }
+    if (event.key == 'X' && window.capturing) {
+        stopCapture();
+        window.capturing = false;
     }
 }

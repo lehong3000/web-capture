@@ -9,7 +9,7 @@
 	"content_scripts": [
 		{
 			"matches": [ "https://*/*", "http://*/*" ],
-			"js": [ "jquery.min.js", "html2canvas.min.js", "main.js" ]
+			"js": [ "main.js" ]
 		}
 	],
 	"icons": {
