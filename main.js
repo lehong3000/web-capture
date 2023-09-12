@@ -143,7 +143,6 @@ window.onkeyup = function (event) {
                     return current;
                 });
             }
-            //imageQuality
         }
     }
 }
