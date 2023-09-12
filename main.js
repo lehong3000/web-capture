@@ -72,10 +72,13 @@ const startCapture = async function () {
         },
         audio: false,
     };
+    const videoElem = document.createElement("video");
+    videoElem.autoplay = true;
+    const canvasElem = document.createElement("canvas");
     try {
-        const videoElem = document.createElement("video");
-        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
-        videoElem.srcObject.getVideoTracks()[0].onended = stopCapture;
+        const stream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+        stream.getVideoTracks()[0].onended = stopCapture;
+        videoElem.srcObject = stream
         window.capturing = true;
     } catch (e) { 
         console.error(e);
@@ -83,7 +86,13 @@ const startCapture = async function () {
 
     const loop = function () {
         if (window.capturing === true) {
-            console.log('hi')
+            const { width, height } = videoElem.srcObject.getVideoTracks()[0].getSettings();
+            canvasElem.width = width;
+            canvasElem.height = height;
+            console.log('Media size', { width: width, height: height });
+            canvasElem.getContext('2d').drawImage(videoElem, 0, 0, canvasElem.width, canvasElem.height);
+            var jpeg = canvasElem.toDataURL('image/jpeg');
+            console.log(jpeg);
             setTimeout(loop, getConf().pushInterval);
         }
     };
