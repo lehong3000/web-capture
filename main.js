@@ -1,4 +1,20 @@
-const storageKey = 'WebCaptureData'
+const storageKey = 'WebCaptureData';
+const defaultConf = {
+    pushUrl: '/PushData',
+    pushInterval: 5000
+};
+
+const getConf = function () {
+    return {
+        ...defaultConf,
+        ...JSON.parse(localStorage.getItem(storageKey) ?? '{}')
+    };
+}
+
+const setConf = function (seter) {
+    var current = getConf();
+    localStorage.setItem(storageKey, JSON.stringify(seter(current)));
+}
 
 const guid = function () {
     var s4 = function () {
@@ -12,7 +28,7 @@ const submit = function (image) {
 
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '/PushData';
+    form.action = getConf().pushUrl;
     form.style.display = 'none';
 
     const iframe = document.createElement('iframe');
@@ -49,7 +65,6 @@ const startCapture = async function () {
     if (window.capturing === true) {
         return;
     }
-    window.capturing = true;
     console.log('start-capture');
     const displayMediaOptions = {
         video: {
@@ -57,30 +72,56 @@ const startCapture = async function () {
         },
         audio: false,
     };
-    const videoElem = document.createElement("video");
-    videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
-    videoElem.srcObject.getVideoTracks()[0].onended = stopCapture;
+    try {
+        const videoElem = document.createElement("video");
+        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+        videoElem.srcObject.getVideoTracks()[0].onended = stopCapture;
+        window.capturing = true;
+    } catch (e) { 
+        console.error(e);
+    }
+
+    const loop = function () {
+        if (window.capturing === true) {
+            console.log('hi')
+            setTimeout(loop, getConf().pushInterval);
+        }
+    };
+    loop();
 }
 
 const stopCapture = async function () {
-    console.log('stop-capture');
     window.capturing = false;
+    console.log('stop-capture');
 }
 
 window.onkeyup = function (event) {
     if (event.altKey === true && event.ctrlKey === true && event.key == 'c') {
-        var cmd = prompt('Command:');
-        if (cmd == 'start') {
-            startCapture();
-        }
-        if (cmd == 'url') {
-            var current = JSON.parse(localStorage.getItem(storageKey) ?? '{}');
-            var postUrl = prompt('Post URL: ' + (current.postUrl ?? '/PushData'));
-            current.postUrl = postUrl ?? '/PushData';
-            localStorage.setItem(storageKey, JSON.stringify(current));
-        }
-        if (cmd == 'conf') {
-            alert(localStorage.getItem(storageKey) ?? '{}');
+        while (true) {
+            var cmd = prompt('Command:');
+            if (cmd == 'exit') {
+                break;
+            }
+            if (cmd == 'start') {
+                startCapture();
+                break;
+            }
+            if (cmd == 'url') {
+                setConf(function (current) {
+                    current.pushUrl = prompt('Push URL: ' + current.pushUrl);
+                });
+            }
+            if (cmd == 'conf') {
+                alert(JSON.stringify(getConf()));
+            }
+            if (cmd == 'time') {
+                setConf(function (current) {
+                    var num = parseInt(prompt('Push interval: ' + current.pushInterval));
+                    num = isNaN(num) ? 0 : num;
+                    num = num < 1000 ? 1000 : num;
+                    current.pushInterval = num;
+                });
+            }
         }
     }
 }
