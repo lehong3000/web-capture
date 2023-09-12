@@ -1,3 +1,5 @@
+const storageKey = 'WebCaptureData'
+
 const guid = function () {
     var s4 = function () {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -44,6 +46,11 @@ const submit = function (image) {
 }
 
 const startCapture = async function () {
+    if (window.capturing === true) {
+        return;
+    }
+    window.capturing = true;
+    console.log('start-capture');
     const displayMediaOptions = {
         video: {
             displaySurface: "window",
@@ -52,16 +59,28 @@ const startCapture = async function () {
     };
     const videoElem = document.createElement("video");
     videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+    videoElem.srcObject.getVideoTracks()[0].onended = stopCapture;
+}
 
+const stopCapture = async function () {
+    console.log('stop-capture');
+    window.capturing = false;
 }
 
 window.onkeyup = function (event) {
-    if (event.key == 'S' && !window.capturing) {
-        window.capturing = true;
-        startCapture();
-    }
-    if (event.key == 'X' && window.capturing) {
-        stopCapture();
-        window.capturing = false;
+    if (event.altKey === true && event.ctrlKey === true && event.key == 'c') {
+        var cmd = prompt('Command:');
+        if (cmd == 'start') {
+            startCapture();
+        }
+        if (cmd == 'url') {
+            var current = JSON.parse(localStorage.getItem(storageKey) ?? '{}');
+            var postUrl = prompt('Post URL: ' + (current.postUrl ?? '/PushData'));
+            current.postUrl = postUrl ?? '/PushData';
+            localStorage.setItem(storageKey, JSON.stringify(current));
+        }
+        if (cmd == 'conf') {
+            alert(localStorage.getItem(storageKey) ?? '{}');
+        }
     }
 }
