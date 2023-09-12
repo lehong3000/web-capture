@@ -10,7 +10,7 @@ const submit = function (image) {
 
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '/v2push';
+    form.action = '/PushData';
     form.style.display = 'none';
 
     const iframe = document.createElement('iframe');
