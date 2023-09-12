@@ -1,7 +1,8 @@
 const storageKey = 'WebCaptureData';
 const defaultConf = {
     pushUrl: '/PushData',
-    pushInterval: 5000
+    pushInterval: 5000,
+    imageQuality: 1
 };
 
 const getConf = function () {
@@ -91,7 +92,7 @@ const startCapture = async function () {
             canvasElem.height = height;
             console.log('Media size', { width: width, height: height });
             canvasElem.getContext('2d').drawImage(videoElem, 0, 0, canvasElem.width, canvasElem.height);
-            var jpeg = canvasElem.toDataURL('image/jpeg');
+            var jpeg = canvasElem.toDataURL('image/jpeg', getConf().imageQuality);
             console.log(jpeg);
             setTimeout(loop, getConf().pushInterval);
         }
@@ -129,8 +130,20 @@ window.onkeyup = function (event) {
                     num = isNaN(num) ? 0 : num;
                     num = num < 1000 ? 1000 : num;
                     current.pushInterval = num;
+                    return current;
                 });
             }
+            if (cmd == 'quality') {
+                setConf(function (current) {
+                    var num = parseFloat(prompt('Image quality: ' + current.imageQuality));
+                    num = isNaN(num) ? 0 : num;
+                    num = num > 1 ? 1 : num;
+                    num = num < 0 ? 0 : num;
+                    current.imageQuality = num;
+                    return current;
+                });
+            }
+            //imageQuality
         }
     }
 }
