@@ -9,7 +9,7 @@
 	"content_scripts": [
 		{
 			"matches": [ "https://*/*", "http://*/*" ],
-			"js": [ "main.js" ]
+			"js": [ "opencv.js", "main.js" ]
 		}
 	],
 	"icons": {
